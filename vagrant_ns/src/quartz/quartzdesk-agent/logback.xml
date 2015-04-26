@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2013-2015 QuartzDesk.com. All Rights Reserved.
+  ~ QuartzDesk.com PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+  -->
+
+<!--
+  Please note that all Logback class names in this configuration file have the 'ext'
+  prefix. This is because the QuartzDesk Agent runtime contains a repackaged version
+  of the Logback framework to avoid potential clashes with Logback classes loaded
+  by the JVM from other locations.
+
+  Scan for logback.xml changes has been intentionally disabled so as not to loose
+  the agentId property used by the console appender upon reloading the logback.xml
+  configuration file.
+-->
+
+<configuration scan="false" scanPeriod="60 seconds" debug="false">
+  <!--
+    Registers the MBean for logback management in the JMX server under the given context name.
+  -->
+  <!--
+  <contextName>quartzdesk-agent</contextName>
+  <jmxConfigurator/>
+  -->
+
+ <!--
+    If JVM system property quartzdesk-agent.work.dir is set, then use it, otherwise the logs
+    will be stored in the current working directory.
+  -->
+  <property name="logs.dir" value="${quartzdesk-agent.work.dir:-.}/logs"/>
+
+
+  <appender name="STDOUT" class="ext.ch.qos.logback.core.ConsoleAppender">
+    <filter class="ext.ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>[%property{agentId}] %msg%n</pattern>
+    </encoder>
+  </appender>
+
+
+  <appender name="FILE" class="ext.ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${logs.dir}/quartzdesk-agent.log</file>
+    <append>true</append>
+
+    <filter class="ext.ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+
+    <rollingPolicy class="ext.ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- daily rollover -->
+      <fileNamePattern>${logs.dir}/quartzdesk-agent.log.%d{yyyy-MM-dd}</fileNamePattern>
+      <!-- keep 10 days' worth of history -->
+      <maxHistory>10</maxHistory>
+    </rollingPolicy>
+
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>[%date] %.-1level [%thread] [%logger:%line] - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+
+  <appender name="TRACE_FILE" class="ext.ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${logs.dir}/quartzdesk-agent-trace.log</file>
+    <append>true</append>
+
+    <filter class="ext.ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>TRACE</level>
+    </filter>
+
+    <rollingPolicy class="ext.ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <fileNamePattern>${logs.dir}/quartzdesk-agent-trace.log.%i</fileNamePattern>
+      <minIndex>1</minIndex>
+      <maxIndex>5</maxIndex>
+    </rollingPolicy>
+
+    <triggeringPolicy class="ext.ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <maxFileSize>2MB</maxFileSize>
+    </triggeringPolicy>
+
+    <encoder>
+      <charset>UTF-8</charset>
+      <pattern>[%date] %.-1level [%thread] [%logger:%line] - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+
+  
+  <logger name="com.quartzdesk.agent"
+        level="TRACE"/>	  
+
+  <!--
+    JavaScript expression logging through the 'log' object exposed in the global scope using
+    one of these (JavaScript) methods:
+
+     log.trace(String)
+     log.debug(String)
+     log.info(String)
+     log.warn(String)
+     log.error(String)
+  -->
+  <logger name="javascript"
+          level="TRACE"/>
+
+  <!--
+    All >= WARN messages from all libraries should be logged.
+  -->
+  <root level="WARN">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="TRACE_FILE"/>
+  </root>
+</configuration>
