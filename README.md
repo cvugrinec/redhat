@@ -2,7 +2,13 @@
 
 This repository contains sourcecodes that I think that might be interesting to share with you.
 
+dv-googleanalytics-demo
+========================
+contains my 1st JBoss Data Virtualization project, which combines 2 data(base)sources, 1 excel file and the (json) results of 2 google analytics rest services
+
+
 vagrant_ns
+==========
 contains a Vagrant file which calls scripts that sets up the following:
  - Centos 6.6 with all the required users
  - JBoss eap 6.3.0 installation with java 1.7
