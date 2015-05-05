@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+java_version="jdk1.7.0_79"
+
 instances="cm-tegel-instance1 co-tegel-instance1 mc-tegel-instance1 dm-tegel-instance1 tm-tegel-instance1 sm-tegel-instance1"
 
 echo "install NS JBoss EAP script called..."
@@ -36,13 +38,13 @@ chown -R jboss:ovcp /opt/ns
 
 echo "creating symbolic links"
 cd /opt
-ln -s /opt/ns/java/jdk1.7.0_75/ java
+ln -s /opt/ns/java/$java_version/ java
 ln -s /opt/ns/jboss/jboss-eap-6.3/ jboss
 ln -s /opt/ns/jboss/instances/ jboss-servers
 
 # weird symbolic link stuff that needed cleaning up ...vagrant stuff???
 cd /opt/java
-rm -f jdk1.7.0_75
+rm -f $java_version
 cd /opt/jboss-servers
 rm -f instances
 cd /opt/jboss
