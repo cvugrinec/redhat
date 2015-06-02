@@ -1,12 +1,34 @@
 script=$(readlink -f "$0")
 instanceDir=$(dirname "$script")
 instanceName=`echo $instanceDir | sed -e 's/\/.*\///'`
+hostname=`hostname -f`
 offset=`cat $instanceDir/properties | grep offset | sed ' s/offset=// '`
+ctrlPort=$(($offset + 9999))
+counter=0
 
 export JBOSS_MODULEPATH=/opt/ns/modules/default
 export JAVA_HOME=/opt/java
 export PATH=$PATH:$JAVA_HOME/bin
-export JAVA_OPTS="$JAVA_OPTS -Xms512m -Xmx512m -XX:MaxPermSize=128m"
+export JAVA_OPTS="$JAVA_OPTS -Xms512m -Xmx512m -XX:MaxPermSize=128m -Dcom.ibm.msg.client.commonservices.log.outputName=/var/log/jboss-servers/$instanceName/wmq.log -Dcom.ibm.msg.client.commonservices.log.count=5 -Dcom.ibm.msg.client.commonservices.log.maxBytes=1000000"
+
+checkStatus(){
+    /opt/jboss/bin/jboss-cli.sh --connect --controller=$hostname:$ctrlPort ":read-attribute(name=server-state)" 2>/dev/null
+    resultCode=`echo $?`
+    counter=$(($counter+ 1))
+    if [[ $resultCode != 0 ]]
+    then
+       echo "could not connect, retrying 1 more time"
+    else
+       echo "succesfully started"
+       exit 0
+    fi
+    if [[ $counter>=5 ]]
+    then
+       echo "could not get status...within 5 time, exiting with errorcode 1"
+       exit 1
+    fi
+    sleep 3
+}
 
 if [[ -f $instanceDir/$instanceName.pid ]]
 then
@@ -41,4 +63,8 @@ then
 else
    echo "instance $instanceName started succesfully"
    ps -ef | grep $pid
+   while true
+   do
+      checkStatus
+   done
 fi
