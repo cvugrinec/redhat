@@ -1,5 +1,0 @@
-/subsystem=security/security-domain=quartzdesk:add(cache-type=default)
-
-/subsystem=security/security-domain=quartzdesk/authentication=classic:add(login-modules=[{"code"=>"RealmUsersRoles", "flag" => "required", "module-options"=>[("usersProperties"=> "${jboss.server.config.dir}/quartzdesk-users.properties"),("rolesProperties"=>"${jboss.server.config.dir}/quartzdesk-roles.properties"),("realm"=>"QuartzDeskRealm"),("password-stacking"=>"useFirstPass")] }]   )
-
-/system-property=quartzdesk.work.dir:add(value="/opt/ns/data/quartzdesk")
