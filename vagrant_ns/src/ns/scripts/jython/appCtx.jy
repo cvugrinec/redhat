@@ -1,0 +1,7 @@
+import sys
+sys.dont_write_bytecode = True
+class AppCtx(object):
+   ctx =  None
+   client = None
+   appResources = None
+

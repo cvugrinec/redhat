@@ -1,0 +1,7 @@
+useradd l1nsr -d /nfs/l1nsr/ -p WtSfbazB
+cp /apps/install/src/proftp/epel.repo /etc/yum.repos.d
+cp /apps/install/src/proftp/RPM-GPG-KEY-EPEL-6 /etc/pki/rpm-gpg/
+yum -y install proftpd
+scp --force /apps/install/src/proftp/proftpd.conf  /etc
+chkconfig proftpd on
+

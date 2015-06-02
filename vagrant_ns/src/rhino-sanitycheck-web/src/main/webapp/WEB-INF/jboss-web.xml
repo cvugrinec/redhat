@@ -1,0 +1,5 @@
+<jboss-web>
+	<!-- 	ovcp/[tegel instance name]/lb -->
+    <context-root>ovcp/mc/lb</context-root>
+	<overlay>/apps/ns/scripts/output</overlay>
+</jboss-web>

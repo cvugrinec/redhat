@@ -1,0 +1,167 @@
+#############################################################################
+#
+#  name: checkInstance.jy
+#  description: checks if basic functionality is working on jboss instance
+#  contact: cvugrinec@redhat.com
+#  todo: - subclass exceptions to more meaningfull classes
+#
+#############################################################################
+
+import sys
+from java.util import Date
+from appCtx import AppCtx
+import org.jboss.as.cli.CommandContextFactory
+
+# init, the 1st parameter is the script itself
+if len(sys.argv) <>3:
+   print "please provide the following 2 arguements to this script: hostname, portnr"
+   sys.exit(1)
+else:
+   host=sys.argv[1];
+   port=sys.argv[2];
+
+# print "- Checking jboss instance on host: "+host+" with portnumber: "+port
+
+# load function defs
+execfile('jython/checkInstanceFunctions.jy')
+app = init(host.strip(),port.strip())
+
+try :
+
+   print "{"
+
+   # starttime
+   uptimeReq = app.ctx.buildRequest("/core-service=platform-mbean/type=runtime:read-attribute(name=start-time)")
+   tmpResult = app.client.execute(uptimeReq)
+   startTime = tmpResult.get("result").asLong()
+   startTimeObj = Date(startTime)
+   print "   \"START_TIME\" : \"" + startTimeObj.toString() + "\","
+
+   # server state
+   serverStateReq = app.ctx.buildRequest(":read-attribute(name=server-state)")
+   tmpResult = app.client.execute(serverStateReq)
+   serverState = tmpResult.get("result")
+   print "   \"SERVER STATE\" : " + serverState.toString() + ","
+
+
+   print "   \"MEM_INFO\" : {"
+   serverStateMemReq = app.ctx.buildRequest("/core-service=platform-mbean/type=memory:read-resource(include-runtime=true)")
+   tmpResult = app.client.execute(serverStateMemReq)
+   print "      \"MemoryHeapUsageInit\" : \""+convertLongToMB(tmpResult.get("result").get("heap-memory-usage").get("init").toString())+" MB\","
+   print "      \"MemoryHeapUsageUsed\" : \""+convertLongToMB(tmpResult.get("result").get("heap-memory-usage").get("used").toString())+" MB\","
+   print "      \"MemoryHeapUsageCommitted\" : \""+convertLongToMB(tmpResult.get("result").get("heap-memory-usage").get("committed").toString())+" MB\","
+   print "      \"MemoryHeapUsageMax\" : \""+convertLongToMB(tmpResult.get("result").get("heap-memory-usage").get("max").toString())+" MB\","
+   print "      \"NonHeapMemoryUsageInit\" : \""+convertLongToMB(tmpResult.get("result").get("non-heap-memory-usage").get("init").toString())+" MB\","
+   print "      \"NonHeapMemoryUsageUsed\" : \""+convertLongToMB(tmpResult.get("result").get("non-heap-memory-usage").get("used").toString())+" MB\","
+   print "      \"NonHeapMemoryUsageCommitted\" : \""+convertLongToMB(tmpResult.get("result").get("non-heap-memory-usage").get("committed").toString())+" MB\","
+   print "      \"NonHeapMemoryUsageMax\" : \""+convertLongToMB(tmpResult.get("result").get("non-heap-memory-usage").get("max").toString())+" MB\""
+   print "   },"
+
+   # connection pool tests
+   print "   \"DATA_SOURCES\" : {"
+   xaDataSources = getDatasources(True)
+   print "      \"XA_DATA_SOURCES\" : {"
+   counter = 0;
+   for dataSource in xaDataSources:
+      # test the connection
+      if dataSource:                     
+         counter +=1
+         checkDataSrcReq = app.ctx.buildRequest("/subsystem=datasources/xa-data-source="+dataSource+":test-connection-in-pool")
+         tmpResult = app.client.execute(checkDataSrcReq)
+         print "         \""+dataSource+"\" : {"
+         print "            \"ConnectionTest\" : \""+tmpResult.get("result").toString()+"\","
+         # get statistics
+         checkDataSrcReq = app.ctx.buildRequest("/subsystem=datasources/xa-data-source="+dataSource+"/statistics=pool:read-resource(include-runtime=true)")
+         tmpResult = app.client.execute(checkDataSrcReq)
+         print "            \"ActiveCount\" : "+tmpResult.get("result").get("ActiveCount").toString()+","
+         print "            \"AvailableCount\" : "+tmpResult.get("result").get("AvailableCount").toString()+","
+         print "            \"InUseCount\" : "+tmpResult.get("result").get("InUseCount").toString()
+         if counter == len(dataSources):
+            print "         }"
+         else:
+            print "         },"
+   print "      },"
+   dataSources = getDatasources(False)
+   print "      \"NON_XA_DATA_SOURCES\" : {"
+   counter = 0;
+   for dataSource in dataSources:
+      # test the connection
+      if dataSource:
+         counter +=1
+         checkDataSrcReq = app.ctx.buildRequest("/subsystem=datasources/data-source="+dataSource+":test-connection-in-pool")
+         tmpResult = app.client.execute(checkDataSrcReq)
+         print "         \""+dataSource+"\" : {"
+         print "            \"ConnectionTest\" : \""+tmpResult.get("result").toString()+"\","
+         # get statistics
+         checkDataSrcReq = app.ctx.buildRequest("/subsystem=datasources/data-source="+dataSource+"/statistics=pool:read-resource(include-runtime=true)")
+         tmpResult = app.client.execute(checkDataSrcReq)
+         print "            \"ActiveCount\" : "+tmpResult.get("result").get("ActiveCount").toString()+","
+         print "            \"AvailableCount\" : "+tmpResult.get("result").get("AvailableCount").toString()+","
+         print "            \"InUseCount\" : "+tmpResult.get("result").get("InUseCount").toString()
+         if counter == len(dataSources): 
+            print "         }"
+         else:
+            print "         },"
+   print "      }"
+   print "   },"
+
+   # check threadpool
+   counter = 0;
+   print "   \"THREAD_POOLS\" : {"
+   threadPools=getThreadPools()
+   for threadPool in threadPools:
+      counter +=1
+      print "      \""+threadPool+"\": {"
+      if counter == len(threadPools):
+         print "      }"
+      else:
+         print "      },"
+   print "   },"
+
+
+   # check application info
+   counter = 0;
+   print "   \"WEB_APPS\" : {"
+   apps=getDeployedApps()
+   for appX in apps:	     
+      if ".war" in appX:
+         counter +=1
+         tmpApp=formatNode(appX)
+         checkAppReq = app.ctx.buildRequest("/deployment="+tmpApp+"/subsystem=web:read-resource(include-runtime=true)")
+         tmpResult = app.client.execute(checkAppReq).get("result").get("context-root").toString()
+         activesessions = app.client.execute(checkAppReq).get("result").get("active-sessions").toString()
+         rejectedsessions = app.client.execute(checkAppReq).get("result").get("rejected-sessions").toString()
+         print "      \""+appX+"\" : {" 
+         if tmpResult != "undefined": 
+            print "         \"contextRoot\" : "+tmpResult+","
+         print "         \"activeSessions\" : \""+activesessions+"\","
+         print "         \"rejectedSession\" : \""+rejectedsessions+"\""
+         if counter == (len(apps)-1):
+            print "      }"
+         else:
+            print "      },"
+   print "   },"
+
+   print "   \"APP_INFO\" : {"
+   counter = 0;
+   for appX in apps:
+      counter +=1
+      tmpApp=formatNode(appX)
+      checkAppReq = app.ctx.buildRequest("/deployment="+tmpApp+":read-resource(include-runtime=true)")
+      print "      \""+appX+"\" : {"
+      enabled = app.client.execute(checkAppReq).get("result").get("enabled").toString()
+      status = app.client.execute(checkAppReq).get("result").get("status").toString()
+      print "          \"enabled\" : "+enabled+","
+      print "          \"status\" : "+status
+      if counter == (len(apps)):
+         print "      }"
+      else:
+         print "      },"
+   print "   }"
+   print ","
+except : 
+   sys.exc_info()[1]
+   sys.exit(1)
+finally :
+   app.ctx.terminateSession();
+

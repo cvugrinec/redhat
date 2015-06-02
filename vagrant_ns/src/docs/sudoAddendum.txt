@@ -1,0 +1,20 @@
+# Add this stuff to sudoers
+
+Cmnd_Alias JB_CLI =  /opt/jboss/bin/jboss-cli.sh
+Cmnd_Alias JB_DM_STOP = /opt/jboss-servers/dm-tegel-instance/stop.sh
+Cmnd_Alias JB_DM_START = /opt/jboss-servers/dm-tegel-instance/start.sh
+Cmnd_Alias JB_CO_STOP = /opt/jboss-servers/co-tegel-instance/stop.sh
+Cmnd_Alias JB_CO_START = /opt/jboss-servers/co-tegel-instance/start.sh
+Cmnd_Alias JB_CM_STOP = /opt/jboss-servers/cm-tegel-instance/stop.sh
+Cmnd_Alias JB_CM_START = /opt/jboss-servers/cm-tegel-instance/start.sh
+Cmnd_Alias JB_MC_STOP = /opt/jboss-servers/mc-tegel-instance/stop.sh
+Cmnd_Alias JB_MC_START = /opt/jboss-servers/mc-tegel-instance/start.sh
+Cmnd_Alias JB_SM_STOP = /opt/jboss-servers/sm-tegel-instance/stop.sh
+Cmnd_Alias JB_SM_START = /opt/jboss-servers/sm-tegel-instance/start.sh
+Cmnd_Alias JB_TM_STOP = /opt/jboss-servers/tm-tegel-instance/stop.sh
+Cmnd_Alias JB_TM_START = /opt/jboss-servers/tm-tegel-instance/start.sh
+Cmnd_Alias JB_CMDS = JB_CLI,JB_DM_STOP,JB_DM_START,JB_CO_STOP,JB_CO_START,JB_CM_STOP,JB_CM_START,JB_MC_STOP,JB_MC_START,JB_SM_STOP,JB_SM_START,JB_TM_STOP,JB_TM_START
+
+jboss   ALL=(ALL)NOPASSWD:JB_CMDS
+
+change /etc/DIR_COLORS --> DIR attribute...annoying dark blue

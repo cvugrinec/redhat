@@ -1,0 +1,31 @@
+
+import sys
+from java.util import Date
+from appCtx import AppCtx
+import org.jboss.as.cli.CommandContextFactory
+
+# init, the 1st parameter is the script itself
+if len(sys.argv) <>3:
+   print "please provide the following 2 arguements to this script: hostname, portnr"
+   sys.exit(1)
+else:
+   host=sys.argv[1];
+   port=sys.argv[2];
+
+# load function defs
+execfile('jython/checkInstanceFunctions.jy')
+app = init(host.strip(),port.strip())
+
+try :
+   # dirty little hack to destroy jsp cache
+
+   checkAppReq = app.ctx.buildRequest("/system-property=org.jboss.as.web.deployment.DELETE_WORK_DIR_ONCONTEXTDESTROY:add(value=true)")
+   app.client.execute(checkAppReq)
+
+   checkAppReq = app.ctx.buildRequest("/deployment=rhino-sanity-web.war:redeploy")
+   app.client.execute(checkAppReq)
+except : 
+   sys.exc_info()[1]
+   sys.exit(1)
+finally :
+   app.ctx.terminateSession();

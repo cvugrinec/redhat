@@ -1,0 +1,44 @@
+#!/bin/bash 
+# 
+# jboss  JBoss script to startup ns rhino instances 
+# 
+# chkconfig: 2345 80 30 
+ 
+start() { 
+  for instance in `ls /opt/jboss-servers/ | grep instance` 
+  do 
+     echo "starting instance $instance....." 
+     sudo -u jboss /opt/jboss-servers/$instance/start.sh 
+     echo "waiting 1 second...." 
+     sleep 1 
+  done 
+} 
+ 
+stop() { 
+  for instance in `ls /opt/jboss-servers/ | grep instance` 
+  do 
+     echo "stopping instance $instance....." 
+     sudo -u jboss /opt/jboss-servers/$instance/stop.sh 
+  done 
+} 
+ 
+case "$1" in 
+  start) 
+      start 
+      ;; 
+  stop) 
+      stop 
+      ;; 
+  restart) 
+      $0 stop 
+      $0 start 
+      ;; 
+  status) 
+      status 
+      ;; 
+  *) 
+      ## If no parameters are given, print which are avaiable. 
+      echo "Usage: $0 {start|stop|status|restart|reload}" 
+      exit 1 
+      ;; 
+esac 

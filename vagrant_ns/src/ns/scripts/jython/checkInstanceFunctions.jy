@@ -1,0 +1,65 @@
+#############################################################################
+#
+#  name: checkInstanceFunctions.jy
+#  description:  function library needed for the checkInstance.py script
+#  contact: cvugrinec@redhat.com
+#  todo: - subclass exceptions to more meaningfull classes
+#
+#############################################################################
+
+import sys
+from java.util import Date
+from appCtx import AppCtx
+import org.jboss.as.cli.CommandContextFactory
+
+sys.dont_write_bytecode = True
+
+# connect and initialize ctx/client
+def init(host,port):
+   app = AppCtx()
+   try :
+      app.ctx = org.jboss.as.cli.CommandContextFactory.getInstance().newCommandContext("jbossAdmin","jboss4dm!n")
+      app.ctx.handleSafe("connect "+host+":"+port);
+      connectStatus = app.ctx.getExitCode()
+      if  connectStatus != 0:
+         raise Exception('could not connect')
+   except Exception:
+      print "XXXXX"
+      print "exception occured during init of connect, connectStatus is: "+str(connectStatus)
+      sys.exit(1)  
+   app.client=app.ctx.getModelControllerClient()
+   allResourcesReq = app.ctx.buildRequest(":read-resource")
+   app.allResources = app.client.execute(allResourcesReq)
+   return app
+
+def convertLongToMB(aNumber):
+   return str(long(aNumber)/1024/1024)
+
+def formatDMR(tmpResult):
+   return tmpResult.replace("u'=>'","").replace(" ","").replace("\n","").replace("u'","").replace("undefined","").replace("=>}","").replace("{","").replace("\"","").split("=>,")
+
+def formatNode(tmpResult):
+   result=tmpResult.split("=>")
+   return result[0]
+
+def getDatasources(xa):
+   dataSourcesReq = app.ctx.buildRequest("/subsystem=datasources:read-resource")
+   tmpResult = app.client.execute(dataSourcesReq)
+   if xa is True:
+      tmpResult2 = tmpResult.get("result").get("xa-data-source").toString()
+   else:
+      tmpResult2 = tmpResult.get("result").get("data-source").toString()   
+   return formatDMR(tmpResult2)
+
+def getThreadPools():
+   threadpoolReq = app.ctx.buildRequest("/subsystem=threads:read-resource")
+   tmpResult = app.client.execute(threadpoolReq)
+   tmpResult2 = tmpResult.get("result").toString()
+   threadPools=formatDMR(tmpResult2)
+   return threadPools
+
+def getDeployedApps():
+    tmpResult=app.allResources.get("result").get("deployment").toString()
+    deployedApps = formatDMR(tmpResult)
+    return deployedApps
+

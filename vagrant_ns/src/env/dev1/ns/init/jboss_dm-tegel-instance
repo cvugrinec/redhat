@@ -1,0 +1,51 @@
+#!/bin/bash 
+# 
+# jboss  JBoss script to startup ns rhino instances 
+# 
+# chkconfig: 2345 80 30 
+instance=dm-tegel-instance 
+ 
+ 
+start() { 
+     echo "starting instance $instance....." 
+     sudo -u jboss /opt/jboss-servers/$instance/start.sh 
+} 
+ 
+stop() { 
+     echo "stopping instance $instance....." 
+     sudo -u jboss /opt/jboss-servers/$instance/stop.sh 
+} 
+ 
+status(){ 
+      export JAVA_HOME=/opt/java 
+      offset=`cat /opt/jboss-servers/$instance/properties | grep offset | sed ' s/offset=// '` 
+      ctrlPort=$(($offset + 9999)) 
+      hostname=`hostname -f` 
+      sudo -u jboss /opt/jboss/bin/jboss-cli.sh --connect --controller=$hostname:$ctrlPort ":read-attribute(name=server-state)" 2>/dev/null 
+      resultCode=`echo $?` 
+      if [[ $resultCode != 0 ]] 
+      then 
+         echo "$instance not running, could not connect" 
+      fi 
+} 
+ 
+case "$1" in 
+  start) 
+      start 
+      ;; 
+  stop) 
+      stop 
+      ;; 
+  restart) 
+      $0 stop 
+      $0 start 
+      ;; 
+  status) 
+      status 
+      ;; 
+  *) 
+      ## If no parameters are given, print which are avaiable. 
+      echo "Usage: $0 {start|stop|status|restart|reload}" 
+      exit 1 
+      ;; 
+esac 
