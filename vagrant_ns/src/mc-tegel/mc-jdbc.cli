@@ -1,8 +1,0 @@
-
-module add --name=com.oracle.jdbc --resources=/vagrant/src/ns/modules/mc/oracle/jdbc/main/ojdbc6.jar --dependencies=javax.api,javax.transaction.api
-
-/subsystem=datasources/jdbc-driver=OracleJDBCDriver:add(driver-module-name=oracle.jdbc,driver-name=OracleJDBCDriver,driver-datasource-class-name=oracle.jdbc.OracleDriver)
-
-/subsystem=datasources/data-source=quartzds:add(jndi-name="java:/jdbc/QuartzDS",connection-url="jdbc:oracle:thin:@NSRBSHBODBSRV01.nsr.dev.infosupport.net:1521:ORAESB",driver-name=OracleJDBCDriver,user-name=quartz,password=quartz,valid-connection-checker-class-name="org.jboss.jca.adapters.jdbc.extensions.oracle.OracleValidConnectionChecker",stale-connection-checker-class-name="org.jboss.jca.adapters.jdbc.extensions.oracle.OracleStaleConnectionChecker",exception-sorter-class-name="org.jboss.jca.adapters.jdbc.extensions.oracle.OracleExceptionSorter")
-
-/subsystem=datasources/data-source=quartzds:enable(persistent=true)
