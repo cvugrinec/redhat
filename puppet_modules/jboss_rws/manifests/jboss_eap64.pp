@@ -39,7 +39,7 @@ class jboss_rws::jboss_eap64 {
   
     $offset = hiera("applications_data.$app.offset")
     $mgmtPort = 9999+$offset
-    $filesToCopy = ["start.sh","stop.sh","properties","minimal.tar"]
+    $filesToCopy = ["start.sh","stop.sh","properties","config.cli","minimal.tar"]
     $filesToCopy.each |String $fileToCopy| {
       file { "/opt/jboss-instances/$app/$fileToCopy":
         mode => '0750',
@@ -67,8 +67,14 @@ class jboss_rws::jboss_eap64 {
       user => 'jboss',
       path => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
     }->
+    exec { "create_config_$app":
+      command => "cat /opt/jboss-instances/$app/config.cli | sed -e 's/XXX_NEWHOSTNAME_XXX/puppetmaster.local/g' >/tmp/config.cli",
+      user => 'jboss',
+      path => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
+      returns => ["0","1",],
+    }->
     exec { "config_$app":
-      command => "/opt/jboss/bin/jboss-cli.sh --connect --controller=localhost:$mgmtPort '/interface=management:write-attribute(name=inet-address,value=puppetmaster.local)'",
+      command => "/opt/jboss/bin/jboss-cli.sh --connect --controller=localhost:$mgmtPort < /tmp/config.cli; rm -f /opt/jboss-instances/$app/config.cli",
       user => 'jboss',
       path => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
       #returns => ["0","1",],

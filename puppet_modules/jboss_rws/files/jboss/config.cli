@@ -1,0 +1,20 @@
+#  Listen Address
+/interface=management:write-attribute(name=inet-address,value=XXX_NEWHOSTNAME_XXX)
+/interface=public:write-attribute(name=inet-address,value=XXX_NEWHOSTNAME_XXX)
+
+/subsystem=web/virtual-server=default-host:write-attribute(name=alias,value=[XXX_NEWHOSTNAME_XXX])
+
+# Remove 
+/subsystem=datasources/data-source=ExampleDS:remove
+
+# Setting the logging
+/subsystem=logging/size-rotating-file-handler=jboss-size-rotating-filehandler:add(file={path=>server.log, relative-to=>jboss.server.log.dir})
+/subsystem=logging/size-rotating-file-handler=jboss-size-rotating-filehandler:write-attribute(name=max-backup-index,value=3)
+/subsystem=logging/size-rotating-file-handler=jboss-size-rotating-filehandler:write-attribute(name=rotate-size,value=15m)
+/subsystem=logging/root-logger=ROOT:remove-handler(name=FILE)
+/subsystem=logging/root-logger=ROOT:add-handler(name=jboss-size-rotating-filehandler)
+# Filter nl.rws package
+# /subsystem=logging/size-rotating-file-handler=jboss-size-rotating-filehandler:write-attribute(name=filter-spec,value=not(match(\"nl.rws\"))
+
+# Reloading stuff
+:reload
