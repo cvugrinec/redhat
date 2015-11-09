@@ -8,9 +8,9 @@ http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
         <class>nl.ns.ovcp.rhinosanity.ee.model.Hsmreference</class>
         <properties>
             <property name="javax.persistence.jdbc.url"
-                      value="jdbc:oracle:thin:@NSRBSHBODBSRV01.nsr.dev.infosupport.net:1521:ORAESB"/>
+                      value="jdbc:oracle:thin:@xxxxxx:1521:ORAESB"/>
             <property name="javax.persistence.jdbc.user" value="ovcp_dev"/>
-            <property name="javax.persistence.jdbc.password" value="ovcp_dev"/>
+            <property name="javax.persistence.jdbc.password" value="xxxxx"/>
             <property name="javax.persistence.jdbc.driver" value="oracle.jdbc.xa.client.OracleXADataSource"/>
             <property name="jboss.as.jpa.managed" value="false"/>
 
