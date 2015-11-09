@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# jboss JBoss script to start default eap standalone
+#
+# chkconfig: 2345 80 30
+
+start(){
+   sudo -u jboss /opt/jboss/bin/standalone.sh
+}
+
+stop(){
+   sudo -u jboss /opt/jboss/bin/jboss-cli.sh --connect command=:shutdown 
+}
+
+case "$1" in
+   start)
+      start
+      ;;
+   stop)
+      stop
+      ;;
+   restart)
+      $0 stop
+      $0 start
+      ;;
+   *)
+    echo "Usage $0 {start|stop|restart}"
+    exit 1
+    ;;
+esac
