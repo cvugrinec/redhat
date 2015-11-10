@@ -7,7 +7,7 @@ ctrlPort=$(($offset + 9999))
 counter=0
 
 export JBOSS_MODULEPATH=/opt/jboss/modules/
-export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.65-2.b17.el7_1.x86_64/jre
+export JAVA_HOME=/opt/java/
 export PATH=$PATH:$JAVA_HOME/bin
 export JAVA_OPTS="$JAVA_OPTS -Xms1024m -Xmx1024m -XX:MaxPermSize=256m"
 
