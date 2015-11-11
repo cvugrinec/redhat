@@ -91,7 +91,6 @@ if [ $1 -eq 1 ]; then
   chmod 755 %{pkg_basedir}/bin/standalone.sh
   chmod 755 %{pkg_basedir}/bin/domain.sh
   chown -R %{runas_user}:%{runas_group} %{pkg_basedir}
-  chown -R %{runas_user}:%{runas_group} %{bindir}
 fi
  
  
