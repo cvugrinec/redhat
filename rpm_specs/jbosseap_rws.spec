@@ -15,7 +15,7 @@
 %define pkg_basedir /opt/jboss
 %define java_version 1:1.8.0
 %define bindir /data/drivers/jboss
-%define patchfile jboss-eap-6.4.3-patch.zip
+%define patchfile jboss-eap-6.4.4-patch.zip
 
 #### Define user and group for the installed files.
 %define runas_user jboss
@@ -54,7 +54,7 @@ Base JBoss Enterprise Application Platform version %{version}
 
 %install
 mkdir -p %{bindir}
-cp ../../SOURCES/jboss-eap-6.4.3-patch.zip %{bindir}
+cp ../../SOURCES/%{patchfile} %{bindir}
 mkdir -p $RPM_BUILD_ROOT%{pkg_basedir}
 cp -r * $RPM_BUILD_ROOT%{pkg_basedir}
 %{__rm} -rf %{_tmppath}/jboss-eap-base.filelist
