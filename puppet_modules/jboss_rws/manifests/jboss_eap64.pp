@@ -10,8 +10,8 @@ class jboss_rws::jboss_eap64 {
   # make sure the required binaries are installed
   package { 'jboss_rws-6.4-2.x86_64':
     ensure => installed,
-    source => 'jboss_rws-6.4-2.src.rpm',
-    provider => 'rpm',
+    install_options => ['--nopgpcheck'],
+    provider => 'yum',
   }->
   exec { "symlink_to_java":
       command => "ln -s /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.65-0.b17.el6_7.x86_64/jre java",
