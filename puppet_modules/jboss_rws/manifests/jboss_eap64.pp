@@ -44,6 +44,7 @@ class jboss_rws::jboss_eap64 {
   $apps.each |String  $app| {
   
     $offset = hiera("applications_data.$app.offset")
+    $listaddr= hiera("applications_data.$app.listaddr")
     $mgmtPort = 9999+$offset
     $filesToCopy = ["start.sh","stop.sh","properties","config.cli","app_init_instance","minimal.tar"]
     $filesToCopy.each |String $fileToCopy| {
@@ -75,7 +76,7 @@ class jboss_rws::jboss_eap64 {
       path => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
     }->
     exec { "create_config_$app":
-      command => "cat /opt/jboss-instances/$app/config.cli | sed -e 's/XXX_NEWHOSTNAME_XXX/puppetmaster.local/g' >/tmp/config.cli",
+      command => "cat /opt/jboss-instances/$app/config.cli | sed -e 's/XXX_NEWHOSTNAME_XXX/$listaddr/g' >/tmp/config.cli",
       user => 'jboss',
       path => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
       returns => ["0","1",],
@@ -94,7 +95,7 @@ class jboss_rws::jboss_eap64 {
       path => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
     }
     exec { "setting_initfile_for_$app":
-      command => "cat /opt/jboss-instances/$app/app_init_instance | sed -e 's/XXX_INSTANCE/$app/' > /tmp/app_init_instance; mv -f /tmp/app_init_instance /etc/init.d/jboss-$app-instance; chmod 750 /etc/init.d/jboss-$app-instance; chkconfig --add jboss-$app-instance",
+      command => "cat /opt/jboss-instances/$app/app_init_instance | sed -e 's/XXX_INSTANCE/$app/' > /tmp/app_init_instance; mv -f /tmp/app_init_instance /etc/init.d/jboss-$app-instance; chmod 750 /etc/init.d/jboss-$app-instance; rm -f /opt/jboss-instances/$app/app_init_instance; chkconfig --add jboss-$app-instance",
       unless => "/usr/bin/test -f '/etc/init.d/jboss-$app-instance'",
       path => '/usr/local/bin:/bin/:/sbin',
     }
