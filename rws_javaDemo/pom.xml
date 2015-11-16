@@ -40,7 +40,7 @@
 <!--
         <docker.from>jboss/wildfly</docker.from>
 -->
-        <docker.from>cvugrinec/jboss-eap:64</docker.from>
+        <docker.from>cvugrinec/jboss-eap64:1.0</docker.from>
         <docker.add>rws-javademo.wars/</docker.add>
         <fabric8.dockerUser>cvugrinec/</fabric8.dockerUser>
         <docker.image>${fabric8.dockerUser}${project.artifactId}:${project.version}</docker.image>
@@ -236,12 +236,19 @@
         <configuration>
           <images>
             <image>
+              <run>
+                 <ports>
+                   <port>jolokia.port:8080</port>
+                   <port>jolokia.mgmtport:9990</port>
+                 </ports>
+              </run>
               <name>${docker.image}</name>
               <build>
                 <from>${docker.from}</from>
+                 <cmd>service jboss start</cmd>
                 <assembly>
-                  <basedir>/opt/jboss/wildfly/standalone/deployments</basedir>
-                  <descriptorRef>artifact</descriptorRef>
+                   <basedir>/opt/jboss/standalone/deployments</basedir>
+                   <descriptorRef>artifact</descriptorRef>
                 </assembly>
                 <env>
                   <JAVA_APP_WAR>${project.build.finalName}.war</JAVA_APP_WAR>
