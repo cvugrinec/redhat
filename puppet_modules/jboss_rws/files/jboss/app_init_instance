@@ -3,7 +3,7 @@
 # jboss  JBoss script to startup rws instances 
 # 
 # chkconfig: 2345 80 30 
-pidfile: /var/run/XXX_INSTANCE.pid
+# pidfile: /var/run/XXX_INSTANCE.pid
 instance=XXX_INSTANCE
 
 # Source function library.
