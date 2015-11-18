@@ -233,9 +233,52 @@
         <groupId>org.jolokia</groupId>
         <artifactId>docker-maven-plugin</artifactId>
         <version>${docker.maven.plugin.version}</version>
-        <configuration>
-          <images>
+
+   <configuration>
+        <images>
             <image>
+                <alias>user</alias>
+                <name>cvugrinec/javaee7-docker-maven</name>
+                <build>
+                    <from>${docker.from}</from>
+                    <ports>
+                        <port>8080</port>
+                    </ports>
+                    <cmd>["service","jboss","start"]</cmd>
+                </build>
+                <assembly>
+                   <basedir>/opt/jboss/standalone/deployments</basedir>
+                   <descriptorRef>artifact</descriptorRef>
+                </assembly>
+                <run>
+                    <ports>
+                        <port>8080:8080</port>
+                    </ports>
+                </run>
+            </image>
+        </images>
+    </configuration>
+    <executions>
+        <execution>
+            <id>docker:build</id>
+            <phase>package</phase>
+            <goals>
+                <goal>build</goal>
+            </goals>
+        </execution>
+        <execution>
+            <id>docker:start</id>
+            <phase>install</phase>
+            <goals>
+                <goal>start</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+
+<!--
+        <configuration>
+          <images> <image>
               <run>
                  <ports>
                    <port>jolokia.port:8080</port>
@@ -245,7 +288,7 @@
               <name>${docker.image}</name>
               <build>
                 <from>${docker.from}</from>
-                 <cmd>service jboss start</cmd>
+                <cmd>["service","jboss","start"]</cmd>
                 <assembly>
                    <basedir>/opt/jboss/standalone/deployments</basedir>
                    <descriptorRef>artifact</descriptorRef>
@@ -258,7 +301,7 @@
           </images>
         </configuration>
       </plugin>
-
+-->
         </plugins>
     </build>
 

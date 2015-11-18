@@ -19,6 +19,12 @@ class jboss_rws::jboss_eap64 {
       cwd => "/opt",
       path => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
   }
+  # This is required in order to resolve the sudo issues
+  exec { "sudo_requiretty_patch":
+      command => "sed -i 's/Defaults.*requiretty/# Defaults   requiretty/' /etc/sudoers",
+      cwd => "/opt",
+      path => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
+  }
   file { ["/opt/jboss-instances","/var/log/jboss-instances"]:
     recurse => true,
     ensure => 'directory',
@@ -77,12 +83,14 @@ class jboss_rws::jboss_eap64 {
     }->
     exec { "create_config_$app":
       command => "cat /opt/jboss-instances/$app/config.cli | sed -e 's/XXX_NEWHOSTNAME_XXX/$listaddr/g' >/tmp/config.cli",
+      unless => "/usr/bin/test -d '/opt/jboss-instances/$app'",
       user => 'jboss',
       path => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
       returns => ["0","1",],
     }->
     exec { "config_$app":
-      command => "/opt/jboss/bin/jboss-cli.sh --connect --controller=localhost:$mgmtPort < /tmp/config.cli; rm -f /opt/jboss-instances/$app/config.cli",
+      command => "/opt/jboss/bin/jboss-cli.sh --connect --controller=localhost:$mgmtPort < /tmp/config.cli; touch /var/log/jboss-instances/$app/initialized",
+      unless => "/usr/bin/test -f '/var/log/jboss-instances/$app/initialized'",
       user => 'jboss',
       path => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
       #returns => ["0","1",],
@@ -95,8 +103,12 @@ class jboss_rws::jboss_eap64 {
       path => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
     }
     exec { "setting_initfile_for_$app":
-      command => "cat /opt/jboss-instances/$app/app_init_instance | sed -e 's/XXX_INSTANCE/$app/' > /tmp/app_init_instance; mv -f /tmp/app_init_instance /etc/init.d/jboss-$app-instance; chmod 750 /etc/init.d/jboss-$app-instance; rm -f /opt/jboss-instances/$app/app_init_instance; chkconfig --add jboss-$app-instance",
+      command => "cat /opt/jboss-instances/$app/app_init_instance | sed -e 's/XXX_INSTANCE/$app/' > /tmp/app_init_instance; mv -f /tmp/app_init_instance /etc/init.d/jboss-$app-instance; chmod 750 /etc/init.d/jboss-$app-instance; chkconfig --add jboss-$app-instance",
       unless => "/usr/bin/test -f '/etc/init.d/jboss-$app-instance'",
+      path => '/usr/local/bin:/bin/:/sbin',
+    }
+    exec { "cleanup_of_$app":
+      command => "rm -f /opt/jboss-instances/$app/app_init_instance; rm -f /opt/jboss-instances/$app/config.cli",
       path => '/usr/local/bin:/bin/:/sbin',
     }
   }

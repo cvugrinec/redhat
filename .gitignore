@@ -1,2 +1,3 @@
 .metadata
 RemoteSystemsTempFiles
+puppet_modules/jboss_rws/files/jboss/jboss-eap-6.4.3-patch.zip
