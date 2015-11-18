@@ -14,8 +14,6 @@
 %define pkg_root /opt
 %define pkg_basedir /opt/jboss
 %define java_version 1:1.8.0
-%define patchdir /opt/jboss/patches
-%define patchfile jboss-eap-6.4.4-patch.zip
  
 #### Define user and group for the installed files.
 %define runas_user jboss
@@ -36,7 +34,6 @@ Group:     Applications/Internet
 License:   GPL v3
 URL:       http://support.redhat.com/
 Source0:   %{projectName}.tar
-Source1:   %{patchfile}
 BuildRoot: %{_topdir}/buildroot/%{name}-%{version}
  
 ## Turn off for safety reasons.
@@ -54,8 +51,6 @@ Base JBoss Enterprise Application Platform version %{version}
 %setup -n %{projectName}
  
 %install
-mkdir -p $RPM_BUILD_ROOT%{patchdir}
-cp ../../SOURCES/%{patchfile} $RPM_BUILD_ROOT%{patchdir}
 mkdir -p $RPM_BUILD_ROOT%{pkg_basedir}
 cp -r * $RPM_BUILD_ROOT%{pkg_basedir}
 %{__rm} -rf %{_tmppath}/jboss-eap-base.filelist
@@ -80,13 +75,6 @@ getent passwd %{runas_user} >/dev/null || \
  
  
 %post
-# install patch
-kill -9 $(ps -ef | grep -i jboss | grep -v grep | grep -v yum | awk ' { print $2 } ')
-/opt/jboss/bin/standalone.sh &
-sleep 5
-/opt/jboss/bin/jboss-cli.sh --connect "patch apply --override-all %{patchdir}/%{patchfile}"
-/opt/jboss/bin/jboss-cli.sh --connect ":reload"
-kill -9 $(ps -ef | grep -i jboss | grep -v grep | grep -v yum | awk ' { print $2 } ')
 if [ $1 -eq 1 ]; then
   chmod 755 %{pkg_basedir}/bin/standalone.sh
   chmod 755 %{pkg_basedir}/bin/domain.sh
