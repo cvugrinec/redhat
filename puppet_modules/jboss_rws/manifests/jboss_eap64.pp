@@ -7,8 +7,10 @@
 # Performs basic jboss configuration.
 class jboss_rws::jboss_eap64 {
 
+  $jboss_rpm= hiera("jboss_rws.jboss_rpm")
+
   # make sure the required binaries are installed
-  package { 'jboss_rws-6.4-2.x86_64':
+  package { "$jboss_rpm":
     ensure => installed,
     install_options => ['--nopgpcheck'],
     provider => 'yum',
