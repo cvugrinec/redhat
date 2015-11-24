@@ -1,0 +1,23 @@
+---
+ntp:restrict:
+  -
+ntp:enable: true
+ntp::servers:
+  - 0.us.pool.ntp.org iburst
+  - 1.us.pool.ntp.org iburst
+
+jboss_rws:
+  jboss_rpm: jboss_rws-6.4-2.x86_64
+  patchfile: jboss-eap-6.4.3-patch.zip
+
+applications:
+  - geoserver1
+  - geoweb1
+
+applications_data:
+  geoserver1:
+    offset: 100
+    listaddr: puppetmaster.local
+  geoweb1:
+    offset: 200
+    listaddr: puppetmaster.local
