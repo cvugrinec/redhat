@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.rws.jboss6bouwsteen.javademo.controller;
+package nl.rws.jboss6bouwsteen.javademo;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Model;
@@ -24,8 +24,8 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import nl.rws.jboss6bouwsteen.javademo.model.Member;
-import nl.rws.jboss6bouwsteen.javademo.service.MemberRegistration;
+import nl.rws.jboss6bouwsteen.javademo.Member;
+import nl.rws.jboss6bouwsteen.javademo.MemberRegistration;
 
 // The @Model stereotype is a convenience mechanism to make this a request-scoped bean that has an
 // EL name

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.rws.jboss6bouwsteen.javademo.data;
+package nl.rws.jboss6bouwsteen.javademo;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.RequestScoped;
@@ -25,7 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-import nl.rws.jboss6bouwsteen.javademo.model.Member;
+import nl.rws.jboss6bouwsteen.javademo.Member;
 
 @RequestScoped
 public class MemberListProducer {

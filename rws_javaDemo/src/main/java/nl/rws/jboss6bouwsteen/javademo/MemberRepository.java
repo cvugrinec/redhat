@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.rws.jboss6bouwsteen.javademo.data;
+package nl.rws.jboss6bouwsteen.javademo;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -24,7 +24,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
-import nl.rws.jboss6bouwsteen.javademo.model.Member;
+import nl.rws.jboss6bouwsteen.javademo.Member;
 
 @ApplicationScoped
 public class MemberRepository {

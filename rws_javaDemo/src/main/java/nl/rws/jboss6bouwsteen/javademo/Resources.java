@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.rws.jboss6bouwsteen.javademo.util;
+package nl.rws.jboss6bouwsteen.javademo;
 
 import java.util.logging.Logger;
 

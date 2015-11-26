@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.rws.jboss6bouwsteen.javademo.rest;
+package nl.rws.jboss6bouwsteen.javademo;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,9 +40,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import nl.rws.jboss6bouwsteen.javademo.data.MemberRepository;
-import nl.rws.jboss6bouwsteen.javademo.model.Member;
-import nl.rws.jboss6bouwsteen.javademo.service.MemberRegistration;
+import nl.rws.jboss6bouwsteen.javademo.MemberRepository;
+import nl.rws.jboss6bouwsteen.javademo.Member;
+import nl.rws.jboss6bouwsteen.javademo.MemberRegistration;
 
 /**
  * JAX-RS Example
