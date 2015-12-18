@@ -21,3 +21,11 @@ applications_data:
   geoweb1:
     offset: 200
     listaddr: puppetmaster.local
+
+nexus:
+  version: nexus-2.11.4-01
+  install_file: nexus-2.11.4-01-bundle.tar.gz
+
+jenkins:
+  java_version: 1.8.0
+  jenkins_version: 1.642-1.1
