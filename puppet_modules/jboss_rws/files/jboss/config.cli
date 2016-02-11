@@ -4,8 +4,37 @@
 
 /subsystem=web/virtual-server=default-host:write-attribute(name=alias,value=[XXX_NEWHOSTNAME_XXX])
 
+# Security stuff
 # Remove 
 /subsystem=datasources/data-source=ExampleDS:remove
+/subsystem=web/virtual-server=default-host:write-attribute(name="enable-welcome-root",value="false")
+/subsystem=logging/size-rotating-file-handler=jboss-size-rotating-filehandler-secure:add(file={path=>secure.log, relative-to=>jboss.server.log.dir})
+/subsystem=logging/size-rotating-file-handler=jboss-size-rotating-filehandler-secure:write-attribute(name=max-backup-index,value=3)
+/subsystem=logging/size-rotating-file-handler=jboss-size-rotating-filehandler-secure:write-attribute(name=rotate-size,value=5m)
+# Filter org.jboss.security
+/subsystem=logging/size-rotating-file-handler=jboss-size-rotating-filehandler-secure:write-attribute(name=filter-spec,value=match(\"org.jboss.security\")
+# disable deployment scanner
+/subsystem=deployment-scanner/scanner=default:write-attribute(name="scan-interval",value="-1")
+# information hiding
+/subsystem=web/configuration=jsp-configuration:write-attribute(name="x-powered-by",value="false")
+/subsystem=web/configuration=jsp-configuration:write-attribute(name="display-source-fragment",value="false")
+
+
+
+# Modcluster config
+/subsystem=jgroups:write-attribute(name="default-stack",value="tcp")
+/subsystem=jgroups/stack=tcp:remove-protocol(type=MPING)
+/subsystem=jgroups/stack=tcp:add-protocol(type=TCPPING)
+cd /subsystem=jgroups/stack=tcp/protocol=TCPPING
+#./property=initial_hosts:add(value="XXX_NEWHOSTNAME_XXX[7600]")
+#./property=initial_hosts:add(value="XXX_NEWHOSTNAME_XXX[7600]")
+./property=port_range:add(value=0)
+./property=timeout:add(value=3000)
+./property=num_initial_members:add(value=2)
+/subsystem=modcluster/mod-cluster-config=configuration:remove
+/subsystem=modcluster/mod-cluster-config=configuration:add(connector="ajp",advertise=false,proxy-list="XXX_LBADDR_XXX:XXX_LBPORT_XXX")
+:reload
+
 
 # Setting the logging
 /subsystem=logging/size-rotating-file-handler=jboss-size-rotating-filehandler:add(file={path=>server.log, relative-to=>jboss.server.log.dir})
@@ -14,7 +43,7 @@
 /subsystem=logging/root-logger=ROOT:remove-handler(name=FILE)
 /subsystem=logging/root-logger=ROOT:add-handler(name=jboss-size-rotating-filehandler)
 # Filter nl.rws package
-# /subsystem=logging/size-rotating-file-handler=jboss-size-rotating-filehandler:write-attribute(name=filter-spec,value=not(match(\"nl.rws\"))
+/subsystem=logging/size-rotating-file-handler=jboss-size-rotating-filehandler:write-attribute(name=filter-spec,value=not(match(\"nl.rws\"))
 
 # Reloading stuff
 :reload
