@@ -17,7 +17,7 @@ cleanup(){
 
 if [[ $force == "-f" ]]
 then
-   killProcess
+   kill -9 $(ps -ef | grep -i $instanceName | grep -v grep | awk ' { print $2} ') 2>/dev/null
 else
    /opt/jboss/bin/jboss-cli.sh --connect --controller=$hostName:$ctrlPort :shutdown 2>/dev/null
    resultCode=`echo $?`
@@ -26,7 +26,7 @@ else
      pidz=`ps -ef | grep -i $instanceName | grep -v grep | awk ' { print $2} '`
      if [[ $pidz != "" ]]
      then
-       kill -9 $(ps -ef | grep -i $instanceName | grep -v grep | awk ' { print $2} ')
+       kill -9 $(ps -ef | grep -i $instanceName | grep -v grep | awk ' { print $2} ') 2>/dev/null
      fi
    fi
 fi

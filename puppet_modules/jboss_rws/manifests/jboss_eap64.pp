@@ -115,5 +115,21 @@ class jboss_rws::jboss_eap64 {
       command => "rm -f /opt/jboss-instances/$app/app_init_instance; rm -f /opt/jboss-instances/$app/config.cli",
       path => '/usr/local/bin:/bin/:/sbin',
     }
+    exec { "symlink_to_log_$app":
+      command => "ln -s /var/log/jboss-instances/$app logs",
+      user => 'jboss',
+      unless => "/usr/bin/test -L '/opt/jboss-instances/$app/logs'",
+      cwd => "/opt/jboss-instances/$app/",
+      path => '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin',
+    }
+    exec { "setting_initfile_for_$app":
+      command => "cat /opt/jboss-instances/$app/app_init_instance | sed -e 's/XXX_INSTANCE/$app/' > /tmp/app_init_instance; mv -f /tmp/app_init_instance /etc/init.d/jboss-$app-instance; chmod 750 /etc/init.d/jboss-$app-instance; chkconfig --add jboss-$app-instance",
+      unless => "/usr/bin/test -f '/etc/init.d/jboss-$app-instance'",
+      path => '/usr/local/bin:/bin/:/sbin',
+    }
+    exec { "cleanup_of_$app":
+      command => "rm -f /opt/jboss-instances/$app/app_init_instance; rm -f /opt/jboss-instances/$app/config.cli",
+      path => '/usr/local/bin:/bin/:/sbin',
+    }
   }
 }

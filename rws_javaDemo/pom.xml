@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.javaee7.sample</groupId>
+  <artifactId>javaee7-docker-maven</artifactId>
+  <version>2.0</version>
+  <packaging>war</packaging>
+  <name>javaee7-docker-maven</name>
+
+
+    <properties>
+<!--
+       <fabric8.version>2.2.61</fabric8.version>
+-->
+       <fabric8.version>2.2.65</fabric8.version>
+       <fabric8.service.port>9102</fabric8.service.port>
+       <fabric8.service.containerPort>8080</fabric8.service.containerPort>
+
+       <fabric8.dockerUser>fabric8/</fabric8.dockerUser>
+       <docker.image>${fabric8.dockerUser}${project.artifactId}:${project.version}</docker.image>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.wildfly.bom</groupId>
+                <artifactId>jboss-javaee-7.0-with-tools</artifactId>
+                <version>8.2.1.Final</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.bom</groupId>
+                <artifactId>jboss-javaee-7.0-with-hibernate</artifactId>
+                <version>8.2.1.Final</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+         <dependency>
+               <groupId>io.fabric8</groupId>
+               <artifactId>fabric8-project</artifactId>
+               <version>${fabric8.version}</version>
+               <type>pom</type>
+               <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    
+<dependencies>
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.annotation</groupId>
+            <artifactId>jboss-annotations-api_1.2_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>jaxrs-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.ejb</groupId>
+            <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.faces</groupId>
+            <artifactId>jboss-jsf-api_2.2_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jpamodelgen</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator-annotation-processor</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+<!--
+  <dependencies>
+    <dependency>
+      <groupId>javax</groupId>
+      <artifactId>javaee-api</artifactId>
+      <version>7.0</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+-->
+
+
+  <build>
+    <finalName>cvugrinec-docker-maven</finalName>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.3</version>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.wildfly.plugins</groupId>
+        <artifactId>wildfly-maven-plugin</artifactId>
+        <version>1.0.2.Final</version>
+      </plugin>
+      <plugin>
+        <groupId>org.jolokia</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.13.1</version>
+        <configuration>
+          <images>
+            <image>
+              <name>${docker.image}</name>
+              <build>
+	        <maintainer>cvugrinec@redhat.com</maintainer>
+<!--
+                <from>jboss/wildfly:9.0.0.Final</from>
+-->
+                <from>cvugrinec/javaee7-docker-maven</from>
+                <assembly>
+                  <descriptor>assembly.xml</descriptor>
+                  <basedir>/opt/jboss/standalone/deployments/</basedir>
+                  <user>jboss:jboss:jboss</user>
+                </assembly>
+                <ports>
+                  <port>8080</port>
+                </ports>
+              </build>
+              <run>
+                <ports>
+                  <port>8080:8080</port>
+                </ports>
+                <log>
+                  <prefix>WF</prefix>
+                  <date>none</date>
+                  <color>cyan</color>
+                </log>
+              </run>
+            </image>
+          </images>
+        </configuration>
+        <executions>
+          <execution>
+            <id>docker:build</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>docker:start</id>
+            <phase>install</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+            <plugin>
+               <groupId>io.fabric8</groupId>
+               <artifactId>fabric8-maven-plugin</artifactId>
+               <version>${fabric8.version}</version>
+               <executions>
+                  <execution>
+                     <id>json</id>
+                     <phase>generate-resources</phase>
+                     <goals><goal>json</goal></goals>
+                  </execution>
+                  <execution>
+                     <id>attach</id>
+                     <phase>package</phase>
+                     <goals><goal>attach</goal></goals>
+                  </execution>
+               </executions>
+               </plugin>
+
+    </plugins>
+  </build>
+</project>

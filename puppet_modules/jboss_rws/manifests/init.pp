@@ -45,5 +45,5 @@ class jboss_rws {
       }
 
       include jboss_rws::jboss_eap64
-#      include jboss_rws::jboss_eap64_patch
+#     include jboss_rws::jboss_eap64_patch
 }
